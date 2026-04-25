@@ -18,7 +18,7 @@ export class Timer extends Container {
   constructor(options: TimerOptions = {}) {
     super();
 
-    const { durationMs = 10 * 1000, fontSize = 42, fill = 0xffffff } = options;
+    const { durationMs = 5*60 * 1000, fontSize = 42, fill = 0xffffff } = options;
 
     this.timeRemainingMs = durationMs;
 

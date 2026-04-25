@@ -8,6 +8,7 @@ import { SettingsPopup } from "../popups/SettingsPopup";
 import { Button } from "../ui/Button";
 import { Counter } from "../ui/Counter";
 import { BUILDING_ICONS, BouncingIcon, ICON_PRESETS } from "../ui/FloatingIcon";
+import { MilestoneCard } from "../ui/MilestoneCard";
 import { RamChart } from "../ui/RamChart";
 import { Timer } from "../ui/Timer";
 import { ResultScreen } from "./ResultScreen";
@@ -101,10 +102,18 @@ export class GameScreen extends Container {
   // RAM price chart
   private ramChart: RamChart;
 
+  // Milestone background cards
+  private cardsContainer: Container;
+  private milestoneCards: MilestoneCard[] = [];
+
   constructor() {
     super();
 
-    // Floating icons layer (behind everything)
+    // Milestone cards layer (very back)
+    this.cardsContainer = new Container();
+    this.addChild(this.cardsContainer);
+
+    // Floating icons layer (behind everything else)
     this.iconsContainer = new Container();
     this.addChild(this.iconsContainer);
 
@@ -482,10 +491,28 @@ export class GameScreen extends Container {
       this.nextMilestone++;
       // Play jackpot sound
       engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 0.6 });
+      // Spawn milestone background card
+      this.spawnMilestoneCard(this.nextMilestone - 1);
       // Massive star explosion (bypasses icon cap)
       for (let i = 0; i < 500; i++) {
         this.spawnBouncingIcon("milestone", true);
       }
     }
+  }
+
+  private spawnMilestoneCard(index: number): void {
+    const cardW = Math.min(360, this.screenWidth * 0.4);
+    const cardH = cardW * 1.4;
+    const card = new MilestoneCard(index, cardW, cardH);
+
+    // Scatter like cards on a table — random position & slight rotation
+    const margin = cardW * 0.3;
+    card.x = margin + Math.random() * (this.screenWidth - margin * 2);
+    card.y = margin + Math.random() * (this.screenHeight - margin * 2);
+    card.rotation = (Math.random() - 0.5) * 0.4; // ±~11°
+    card.alpha = 0.85;
+
+    this.cardsContainer.addChild(card);
+    this.milestoneCards.push(card);
   }
 }
