@@ -130,6 +130,113 @@ export const ICON_PRESETS = {
   milestone: { label: "⭐", size: 30, color: 0xffd700, duration: 1500, driftY: -120, spreadX: 80 },
 } as const;
 
+/**
+ * A poop icon that pops in, bounces, and flies off screen.
+ * Auto-removes itself once off-screen.
+ */
+export class BouncingIcon extends Container {
+  private vx: number;
+  private vy: number;
+  private gravity: number;
+  private spin: number;
+  private bounceCount = 0;
+  private maxBounces: number;
+  private bounciness: number;
+  private screenW: number;
+  private screenH: number;
+  public finished = false;
+
+  constructor(
+    x: number,
+    y: number,
+    screenW: number,
+    screenH: number,
+    label = "💩",
+    size = 24,
+    color = 0x8b6914,
+  ) {
+    super();
+    this.x = x;
+    this.y = y;
+    this.screenW = screenW;
+    this.screenH = screenH;
+
+    // Wildly random physics per icon
+    this.vx = (Math.random() - 0.5) * 16;
+    this.vy = -(4 + Math.random() * 12);
+    this.gravity = 0.2 + Math.random() * 0.6;
+    this.spin = (Math.random() - 0.5) * 0.3;
+    this.maxBounces = 2 + Math.floor(Math.random() * 6);
+    this.bounciness = 0.4 + Math.random() * 0.5;
+
+    const bg = new Graphics();
+    bg.roundRect(-size / 2, -size / 2, size, size, 6);
+    bg.fill({ color, alpha: 0.6 });
+    this.addChild(bg);
+
+    const txt = new Text({
+      text: label,
+      style: { fontSize: size * 0.7, fill: 0xffffff, fontFamily: "Arial" },
+      anchor: 0.5,
+    });
+    this.addChild(txt);
+
+    // Random starting scale
+    this.scale.set(0.3 + Math.random() * 0.4);
+    this.alpha = 1;
+  }
+
+  public update(deltaMS: number): boolean {
+    if (this.finished) return true;
+
+    const dt = deltaMS / 16;
+
+    this.vy += this.gravity * dt;
+    this.x += this.vx * dt;
+    this.y += this.vy * dt;
+    this.rotation += this.spin * dt;
+
+    // Scale up quickly
+    if (this.scale.x < 1) {
+      this.scale.set(Math.min(1, this.scale.x + 0.06 * dt));
+    }
+
+    // Bounce off the bottom
+    if (this.y >= this.screenH - 30 && this.vy > 0) {
+      this.vy = -this.vy * this.bounciness;
+      this.vx *= 0.8 + Math.random() * 0.8;
+      this.spin = (Math.random() - 0.5) * 0.4;
+      this.bounceCount++;
+      this.y = this.screenH - 30;
+    }
+
+    // Bounce off walls
+    if (this.x <= 0 && this.vx < 0) {
+      this.vx = -this.vx * this.bounciness;
+      this.x = 0;
+    } else if (this.x >= this.screenW && this.vx > 0) {
+      this.vx = -this.vx * this.bounciness;
+      this.x = this.screenW;
+    }
+
+    // Remove when off-screen
+    const margin = 60;
+    if (
+      this.x < -margin ||
+      this.x > this.screenW + margin ||
+      this.y < -margin ||
+      this.bounceCount >= this.maxBounces
+    ) {
+      this.finished = true;
+      this.parent?.removeChild(this);
+      this.destroy();
+      return true;
+    }
+
+    return false;
+  }
+}
+
 /** Map building names to icon presets */
 export const BUILDING_ICONS: Record<string, keyof typeof ICON_PRESETS> = {
   "Cheap GPU": "gpu",

@@ -31,6 +31,8 @@ export class Button extends FancyButton {
           align: "center",
           fontSize: opts.fontSize,
           fontFamily: "Arial",
+          wordWrap: true,
+          wordWrapWidth: opts.width * 0.85,
         },
       }),
       textOffset: { x: 0, y: -13 },

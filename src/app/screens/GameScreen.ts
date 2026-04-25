@@ -7,7 +7,8 @@ import { PausePopup } from "../popups/PausePopup";
 import { SettingsPopup } from "../popups/SettingsPopup";
 import { Button } from "../ui/Button";
 import { Counter } from "../ui/Counter";
-import { BUILDING_ICONS, FloatingIcon, ICON_PRESETS } from "../ui/FloatingIcon";
+import { BUILDING_ICONS, BouncingIcon, ICON_PRESETS } from "../ui/FloatingIcon";
+import { RamChart } from "../ui/RamChart";
 import { Timer } from "../ui/Timer";
 import { ResultScreen } from "./ResultScreen";
 
@@ -87,13 +88,18 @@ export class GameScreen extends Container {
 
   // Floating icons
   private iconsContainer: Container;
-  private activeIcons: FloatingIcon[] = [];
+  private bouncingIcons: BouncingIcon[] = [];
   private nextMilestone = 0;
   private readonly MILESTONES = [
     50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000,
+    250_000, 500_000, 1_000_000, 2_500_000, 5_000_000, 10_000_000, 25_000_000,
+    50_000_000, 100_000_000,
   ];
   private screenWidth = 0;
   private screenHeight = 0;
+
+  // RAM price chart
+  private ramChart: RamChart;
 
   constructor() {
     super();
@@ -151,7 +157,9 @@ export class GameScreen extends Container {
     });
     this.addButton.onPress.connect(() => {
       this.counter.increment(this.modelLevel);
-      this.spawnIcon("click");
+      for (let i = 0; i < this.modelLevel; i++) {
+        this.spawnBouncingIcon("click");
+      }
       this.checkMilestones();
     });
     this.addChild(this.addButton);
@@ -159,9 +167,9 @@ export class GameScreen extends Container {
     // "Bigger Model" upgrade button (click multiplier)
     this.buyModelButton = new Button({
       text: this.getModelButtonText(),
-      width: 220,
+      width: 280,
       height: 70,
-      fontSize: 18,
+      fontSize: 16,
     });
     this.buyModelButton.onPress.connect(() => this.buyModel());
     this.addChild(this.buyModelButton);
@@ -196,9 +204,9 @@ export class GameScreen extends Container {
     for (const def of BUILDING_DEFS) {
       const btn = new Button({
         text: this.getBuildingButtonText(def, 0),
-        width: 220,
+        width: 240,
         height: 60,
-        fontSize: 16,
+        fontSize: 14,
       });
       const label = new Text({
         text: "",
@@ -215,6 +223,10 @@ export class GameScreen extends Container {
       this.buildingsContainer.addChild(label);
       this.buildings.push(state);
     }
+
+    // RAM price chart at the bottom
+    this.ramChart = new RamChart();
+    this.addChild(this.ramChart);
   }
 
   public update(time: Ticker) {
@@ -226,6 +238,7 @@ export class GameScreen extends Container {
     this.updatePassiveIncome(time.deltaMS);
     this.updateIcons(time.deltaMS);
     this.checkMilestones();
+    this.ramChart.update(time.deltaMS, this.counter.getValue());
 
     if (this.timer.isFinished()) {
       this.finishGame();
@@ -274,6 +287,12 @@ export class GameScreen extends Container {
       b.label.x = panelX + 120;
       b.label.y = startY + i * rowHeight;
     }
+
+    // RAM chart fills bottom
+    const chartHeight = Math.max(80, height * 0.15);
+    this.ramChart.x = 0;
+    this.ramChart.y = height - chartHeight;
+    this.ramChart.setSize(width, chartHeight);
   }
 
   public async show(): Promise<void> {
@@ -309,7 +328,7 @@ export class GameScreen extends Container {
     this.modelLevel += 1;
     this.recalcTotalSps();
     this.updateModelDisplay();
-    this.spawnIcon("model");
+    this.spawnBouncingIcon("model");
   }
 
   private getModelCost(): number {
@@ -356,7 +375,7 @@ export class GameScreen extends Container {
     this.recalcTotalSps();
     this.updateBuildingDisplay(b);
     const preset = BUILDING_ICONS[b.def.name] ?? "click";
-    this.spawnIcon(preset);
+    this.spawnBouncingIcon(preset);
   }
 
   private getBuildingCost(b: BuildingState): number {
@@ -407,6 +426,10 @@ export class GameScreen extends Container {
     if (whole > 0) {
       this.counter.increment(whole);
       this.slopAccumulator -= whole;
+      // Spawn 1 bouncing poop per slop gained — fountain effect at high SPS
+      for (let i = 0; i < whole; i++) {
+        this.spawnBouncingIcon("click");
+      }
     }
   }
 
@@ -420,21 +443,32 @@ export class GameScreen extends Container {
 
   // ---------- Floating Icons ----------
 
-  private spawnIcon(preset: keyof typeof ICON_PRESETS): void {
+  private spawnBouncingIcon(
+    preset: keyof typeof ICON_PRESETS,
+    force = false,
+  ): void {
+    if (!force && this.bouncingIcons.length >= 1000) return;
     const cfg = ICON_PRESETS[preset];
-    // Random position anywhere on screen
-    const margin = 40;
-    const x = margin + Math.random() * (this.screenWidth - margin * 2);
-    const y = margin + Math.random() * (this.screenHeight - margin * 2);
-    const icon = new FloatingIcon({ ...cfg, x, y, driftY: 0, spreadX: 0 });
+    // Spawn from the counter position with small random spread
+    const x = this.counter.x + (Math.random() - 0.5) * 60;
+    const y = this.counter.y;
+    const icon = new BouncingIcon(
+      x,
+      y,
+      this.screenWidth,
+      this.screenHeight,
+      cfg.label,
+      cfg.size,
+      cfg.color,
+    );
     this.iconsContainer.addChild(icon);
-    this.activeIcons.push(icon);
+    this.bouncingIcons.push(icon);
   }
 
   private updateIcons(deltaMS: number): void {
-    for (let i = this.activeIcons.length - 1; i >= 0; i--) {
-      if (this.activeIcons[i].update(deltaMS)) {
-        this.activeIcons.splice(i, 1);
+    for (let i = this.bouncingIcons.length - 1; i >= 0; i--) {
+      if (this.bouncingIcons[i].update(deltaMS)) {
+        this.bouncingIcons.splice(i, 1);
       }
     }
   }
@@ -446,9 +480,11 @@ export class GameScreen extends Container {
       score >= this.MILESTONES[this.nextMilestone]
     ) {
       this.nextMilestone++;
-      // Spawn a burst of milestone icons
-      for (let i = 0; i < 5; i++) {
-        this.spawnIcon("milestone");
+      // Play jackpot sound
+      engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 0.6 });
+      // Massive star explosion (bypasses icon cap)
+      for (let i = 0; i < 500; i++) {
+        this.spawnBouncingIcon("milestone", true);
       }
     }
   }
