@@ -19,7 +19,7 @@ export class Timer extends Container {
     super();
 
     const {
-      durationMs = 1 * 10 * 1000,
+      durationMs = 5 * 60 * 1000,
       fontSize = 42,
       fill = 0xffffff,
     } = options;
@@ -52,7 +52,7 @@ export class Timer extends Container {
     }
   }
 
-  public reset(durationMs = 1 * 10 * 1000): void {
+  public reset(durationMs = 5 * 60 * 1000): void {
     this.timeRemainingMs = durationMs;
     this.running = false;
     this.timerText.text = this.formatTime(this.timeRemainingMs);

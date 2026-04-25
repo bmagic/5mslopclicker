@@ -33,10 +33,10 @@ export class Counter extends Container {
   }
 
   /**
-   * Increment the counter by 1
+   * Increment the counter by a specified amount (default 1)
    */
-  public increment(): void {
-    this.count++;
+  public increment(amount: number = 1): void {
+    this.count += amount;
     this.updateDisplay();
   }
 
@@ -45,6 +45,14 @@ export class Counter extends Container {
    */
   public reset(): void {
     this.count = 0;
+    this.updateDisplay();
+  }
+
+  /**
+   * Set the counter to a specific value
+   */
+  public setValue(value: number): void {
+    this.count = Math.max(0, value);
     this.updateDisplay();
   }
 
