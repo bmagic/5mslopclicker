@@ -7,6 +7,7 @@ import { PausePopup } from "../popups/PausePopup";
 import { SettingsPopup } from "../popups/SettingsPopup";
 import { Button } from "../ui/Button";
 import { Counter } from "../ui/Counter";
+import { BUILDING_ICONS, FloatingIcon, ICON_PRESETS } from "../ui/FloatingIcon";
 import { Timer } from "../ui/Timer";
 import { ResultScreen } from "./ResultScreen";
 
@@ -38,6 +39,28 @@ const BUILDING_DEFS: BuildingDef[] = [
   { name: "Datacenter", baseCost: 75_000, baseSps: 400 },
 ];
 
+/** AI model names, from worst to best (and beyond) */
+const MODEL_NAMES: string[] = [
+  "Bard 0.1",
+  "ChatGPT 3.5-Turbo-Slop",
+  "LLaMA 7B-Leaks",
+  "Copilot Wish.com",
+  "Mistral Small-ish",
+  "Claude Instant Noodles",
+  "Gemini Nano-Micro",
+  "GPT-4o-Slop",
+  "DeepSeek R2-D2",
+  "Grok LOL Edition",
+  "LLaMA 405B-Overfit",
+  "Claude Opus 5-Turbo",
+  "Gemini Ultra-Mega",
+  "GPT-6-Hallucinator",
+  "Mistral Le Grand",
+  "SkyNet Alpha 0.1",
+  "Canard PC Slop 9000",
+  "Singularity.exe",
+];
+
 /** Screen where the game is being played */
 export class GameScreen extends Container {
   /** Assets bundles required by this screen */
@@ -60,11 +83,24 @@ export class GameScreen extends Container {
   private buildingsContainer: Container;
   private totalSps = 0;
   private spsText: Text;
-  private timeSinceLastTick = 0;
-  private readonly TICK_INTERVAL_MS = 1000;
+  private slopAccumulator = 0;
+
+  // Floating icons
+  private iconsContainer: Container;
+  private activeIcons: FloatingIcon[] = [];
+  private nextMilestone = 0;
+  private readonly MILESTONES = [
+    50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000,
+  ];
+  private screenWidth = 0;
+  private screenHeight = 0;
 
   constructor() {
     super();
+
+    // Floating icons layer (behind everything)
+    this.iconsContainer = new Container();
+    this.addChild(this.iconsContainer);
 
     this.counter = new Counter();
     this.addChild(this.counter);
@@ -113,9 +149,11 @@ export class GameScreen extends Container {
       width: 300,
       height: 110,
     });
-    this.addButton.onPress.connect(() =>
-      this.counter.increment(this.modelLevel),
-    );
+    this.addButton.onPress.connect(() => {
+      this.counter.increment(this.modelLevel);
+      this.spawnIcon("click");
+      this.checkMilestones();
+    });
     this.addChild(this.addButton);
 
     // "Bigger Model" upgrade button (click multiplier)
@@ -186,6 +224,8 @@ export class GameScreen extends Container {
     this.updateModelButtonState();
     this.updateBuildingButtonStates();
     this.updatePassiveIncome(time.deltaMS);
+    this.updateIcons(time.deltaMS);
+    this.checkMilestones();
 
     if (this.timer.isFinished()) {
       this.finishGame();
@@ -193,6 +233,8 @@ export class GameScreen extends Container {
   }
 
   public resize(width: number, height: number) {
+    this.screenWidth = width;
+    this.screenHeight = height;
     this.pauseButton.x = 30;
     this.pauseButton.y = 30;
     this.settingsButton.x = width - 30;
@@ -267,6 +309,7 @@ export class GameScreen extends Container {
     this.modelLevel += 1;
     this.recalcTotalSps();
     this.updateModelDisplay();
+    this.spawnIcon("model");
   }
 
   private getModelCost(): number {
@@ -275,11 +318,20 @@ export class GameScreen extends Container {
   }
 
   private getModelButtonText(): string {
-    return `Bigger Model x${this.modelLevel + 1} (${this.formatNumber(this.getModelCost())})`;
+    const nextName = this.getModelName(this.modelLevel + 1);
+    return `${nextName} (${this.formatNumber(this.getModelCost())})`;
   }
 
   private getModelDisplayText(): string {
-    return `Model: GPT-Slop ${this.modelLevel} (x${this.modelLevel}/click)`;
+    const name = this.getModelName(this.modelLevel);
+    return `${name} (x${this.modelLevel}/click)`;
+  }
+
+  private getModelName(level: number): string {
+    if (level <= MODEL_NAMES.length) {
+      return MODEL_NAMES[level - 1];
+    }
+    return `Canard PC Slop v${level}`;
   }
 
   private updateModelDisplay(): void {
@@ -303,6 +355,8 @@ export class GameScreen extends Container {
     b.owned += 1;
     this.recalcTotalSps();
     this.updateBuildingDisplay(b);
+    const preset = BUILDING_ICONS[b.def.name] ?? "click";
+    this.spawnIcon(preset);
   }
 
   private getBuildingCost(b: BuildingState): number {
@@ -348,13 +402,11 @@ export class GameScreen extends Container {
   private updatePassiveIncome(deltaMS: number): void {
     if (this.totalSps <= 0) return;
 
-    this.timeSinceLastTick += deltaMS;
-    if (this.timeSinceLastTick >= this.TICK_INTERVAL_MS) {
-      const gain = Math.floor(this.totalSps);
-      if (gain > 0) {
-        this.counter.increment(gain);
-      }
-      this.timeSinceLastTick -= this.TICK_INTERVAL_MS;
+    this.slopAccumulator += this.totalSps * (deltaMS / 1000);
+    const whole = Math.floor(this.slopAccumulator);
+    if (whole > 0) {
+      this.counter.increment(whole);
+      this.slopAccumulator -= whole;
     }
   }
 
@@ -364,5 +416,40 @@ export class GameScreen extends Container {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
     return `${n}`;
+  }
+
+  // ---------- Floating Icons ----------
+
+  private spawnIcon(preset: keyof typeof ICON_PRESETS): void {
+    const cfg = ICON_PRESETS[preset];
+    // Random position anywhere on screen
+    const margin = 40;
+    const x = margin + Math.random() * (this.screenWidth - margin * 2);
+    const y = margin + Math.random() * (this.screenHeight - margin * 2);
+    const icon = new FloatingIcon({ ...cfg, x, y, driftY: 0, spreadX: 0 });
+    this.iconsContainer.addChild(icon);
+    this.activeIcons.push(icon);
+  }
+
+  private updateIcons(deltaMS: number): void {
+    for (let i = this.activeIcons.length - 1; i >= 0; i--) {
+      if (this.activeIcons[i].update(deltaMS)) {
+        this.activeIcons.splice(i, 1);
+      }
+    }
+  }
+
+  private checkMilestones(): void {
+    const score = this.counter.getValue();
+    while (
+      this.nextMilestone < this.MILESTONES.length &&
+      score >= this.MILESTONES[this.nextMilestone]
+    ) {
+      this.nextMilestone++;
+      // Spawn a burst of milestone icons
+      for (let i = 0; i < 5; i++) {
+        this.spawnIcon("milestone");
+      }
+    }
   }
 }
