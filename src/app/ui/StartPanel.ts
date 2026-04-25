@@ -1,8 +1,11 @@
 import { Container, Sprite, Texture } from "pixi.js";
 
+import { storage } from "../../engine/utils/storage";
 import { Button } from "./Button";
 import { Label } from "./Label";
 import { RoundedBox } from "./RoundedBox";
+
+const HIGHSCORE_KEY = "slopclicker-highscore";
 
 /**
  * Overlay shown before the run starts.
@@ -12,6 +15,7 @@ export class StartPanel extends Container {
   private panel: Container;
   private panelBase: RoundedBox;
   private title: Label;
+  private highscoreLabel: Label;
   private startButton: Button;
 
   constructor(onStart: () => void) {
@@ -36,8 +40,22 @@ export class StartPanel extends Container {
         fontSize: 64,
       },
     });
-    this.title.y = -70;
+    this.title.y = -90;
     this.panel.addChild(this.title);
+
+    const best = storage.getNumber(HIGHSCORE_KEY) ?? 0;
+    this.highscoreLabel = new Label({
+      text: best > 0
+        ? `\ud83c\udfc6 Record : ${best.toLocaleString("fr-FR")} slops`
+        : "",
+      style: {
+        fill: 0xffcc00,
+        fontSize: 28,
+        fontFamily: "monospace",
+      },
+    });
+    this.highscoreLabel.y = -20;
+    this.panel.addChild(this.highscoreLabel);
 
     this.startButton = new Button({
       text: "Start",

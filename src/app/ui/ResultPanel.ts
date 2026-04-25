@@ -1,8 +1,11 @@
 import { Container, Sprite, Texture } from "pixi.js";
 
+import { storage } from "../../engine/utils/storage";
 import { Button } from "./Button";
 import { Label } from "./Label";
 import { RoundedBox } from "./RoundedBox";
+
+const HIGHSCORE_KEY = "slopclicker-highscore";
 
 /**
  * Overlay shown when the timer reaches zero.
@@ -13,6 +16,8 @@ export class ResultPanel extends Container {
   private panelBase: RoundedBox;
   private title: Label;
   private scoreLabel: Label;
+  private highscoreLabel: Label;
+  private newRecordLabel: Label;
   private restartButton: Button;
 
   constructor(onRestart: () => void) {
@@ -27,7 +32,7 @@ export class ResultPanel extends Container {
     this.panel = new Container();
     this.addChild(this.panel);
 
-    this.panelBase = new RoundedBox({ width: 700, height: 420 });
+    this.panelBase = new RoundedBox({ width: 800, height: 520 });
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
@@ -44,24 +49,60 @@ export class ResultPanel extends Container {
       text: "0 slop",
       style: {
         fill: 0x4a4a4a,
-        fontSize: 82,
+        fontSize: 64,
+        fontFamily: "monospace",
       },
     });
-    this.scoreLabel.y = -10;
+    this.scoreLabel.y = -30;
     this.panel.addChild(this.scoreLabel);
+
+    this.newRecordLabel = new Label({
+      text: "\u2b50 NOUVEAU RECORD ! \u2b50",
+      style: {
+        fill: 0xffcc00,
+        fontSize: 32,
+        fontFamily: "Arial",
+      },
+    });
+    this.newRecordLabel.y = 30;
+    this.newRecordLabel.visible = false;
+    this.panel.addChild(this.newRecordLabel);
+
+    this.highscoreLabel = new Label({
+      text: "",
+      style: {
+        fill: 0x888888,
+        fontSize: 28,
+        fontFamily: "monospace",
+      },
+    });
+    this.highscoreLabel.y = 70;
+    this.panel.addChild(this.highscoreLabel);
 
     this.restartButton = new Button({
       text: "Relancer",
       width: 300,
       height: 110,
     });
-    this.restartButton.y = 120;
+    this.restartButton.y = 160;
     this.restartButton.onPress.connect(onRestart);
     this.panel.addChild(this.restartButton);
   }
 
   public setScore(score: number): void {
-    this.scoreLabel.text = `${score} slop${score <= 1 ? "" : "s"}`;
+    const formatted = score.toLocaleString("fr-FR");
+    this.scoreLabel.text = `${formatted} slop${score <= 1 ? "" : "s"}`;
+
+    const prevBest = storage.getNumber(HIGHSCORE_KEY) ?? 0;
+    const isNewRecord = score > prevBest;
+
+    if (isNewRecord) {
+      storage.setNumber(HIGHSCORE_KEY, score);
+    }
+
+    this.newRecordLabel.visible = isNewRecord;
+    const best = Math.max(score, prevBest);
+    this.highscoreLabel.text = `Meilleur : ${best.toLocaleString("fr-FR")} slops`;
   }
 
   public resize(width: number, height: number): void {

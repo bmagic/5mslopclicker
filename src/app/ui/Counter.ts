@@ -209,19 +209,31 @@ export class Counter extends Container {
   private layoutReels(): void {
     const digitWidth = this.reels[0]?.getWidth() ?? this.fontSize * 0.6;
     const gap = digitWidth * 0.15;
+    const separatorGap = digitWidth * 0.5; // extra space every 3 digits
+    const n = this.reels.length;
+
+    // Count how many separator gaps we need (every 3 digits from the right)
+    const numSeparators = n > 3 ? Math.floor((n - 1) / 3) : 0;
     const totalWidth =
-      this.reels.length * digitWidth +
-      (this.reels.length - 1) * gap +
+      n * digitWidth +
+      (n - 1) * gap +
+      numSeparators * separatorGap +
       this.suffixText.width;
     const startX = -totalWidth / 2;
 
-    for (let i = 0; i < this.reels.length; i++) {
-      this.reels[i].x = startX + i * (digitWidth + gap) + digitWidth / 2;
+    let xOffset = 0;
+    for (let i = 0; i < n; i++) {
+      // Add separator gap before this digit if it starts a new group of 3 from the right
+      const posFromRight = n - 1 - i;
+      if (i > 0 && posFromRight % 3 === 2) {
+        xOffset += separatorGap;
+      }
+      this.reels[i].x = startX + i * (digitWidth + gap) + xOffset + digitWidth / 2;
       this.reels[i].y = 0;
     }
 
     this.suffixText.x =
-      startX + this.reels.length * (digitWidth + gap);
+      startX + n * (digitWidth + gap) + numSeparators * separatorGap;
     this.suffixText.y = 0;
 
     // Center vertically
