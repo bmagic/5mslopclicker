@@ -45,9 +45,10 @@ export class StartPanel extends Container {
 
     const best = storage.getNumber(HIGHSCORE_KEY) ?? 0;
     this.highscoreLabel = new Label({
-      text: best > 0
-        ? `\ud83c\udfc6 Record : ${best.toLocaleString("fr-FR")} slops`
-        : "",
+      text:
+        best > 0
+          ? `\ud83c\udfc6 Record : ${best.toLocaleString("fr-FR")} slops`
+          : "",
       style: {
         fill: 0xffcc00,
         fontSize: 28,

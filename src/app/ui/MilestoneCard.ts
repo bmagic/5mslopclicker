@@ -2,9 +2,9 @@ import { Assets, Container, Graphics, Sprite, Text } from "pixi.js";
 
 /** Card titles for overlay text */
 const MILESTONE_TITLES = [
-  "Premier Slop",
-  "Bot Éveillé",
-  "Hallucination",
+  "ackboo sclemu",
+  "Breizh Ellen",
+  "M. Chat Chat",
   "Signal Reçu",
   "GPU en Feu",
   "SEO Parasite",
@@ -29,11 +29,7 @@ const MILESTONE_TITLES = [
  * Images are in raw-assets/main{m}/milestones/milestone-N.jpg — replace them with your own art.
  */
 export class MilestoneCard extends Container {
-  constructor(
-    milestoneIndex: number,
-    cardWidth: number,
-    cardHeight: number,
-  ) {
+  constructor(milestoneIndex: number, cardWidth: number, cardHeight: number) {
     super();
 
     const n = milestoneIndex + 1;

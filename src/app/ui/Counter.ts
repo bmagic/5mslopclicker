@@ -17,7 +17,6 @@ class DigitReel extends Container {
   private strip: Container;
   private digitHeight: number;
   private currentDigit = 0;
-  private targetY = 0;
   private animating = false;
   private animStart = 0;
   private animFrom = 0;
@@ -54,12 +53,7 @@ class DigitReel extends Container {
 
     // Mask to show only one digit at a time
     this.mask = new Graphics();
-    this.mask.rect(
-      -this.fontSize * 0.5,
-      0,
-      this.fontSize,
-      this.digitHeight,
-    );
+    this.mask.rect(-this.fontSize * 0.5, 0, this.fontSize, this.digitHeight);
     this.mask.fill(0xffffff);
     this.addChild(this.mask);
     this.strip.mask = this.mask;
@@ -228,7 +222,8 @@ export class Counter extends Container {
       if (i > 0 && posFromRight % 3 === 2) {
         xOffset += separatorGap;
       }
-      this.reels[i].x = startX + i * (digitWidth + gap) + xOffset + digitWidth / 2;
+      this.reels[i].x =
+        startX + i * (digitWidth + gap) + xOffset + digitWidth / 2;
       this.reels[i].y = 0;
     }
 

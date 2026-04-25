@@ -207,7 +207,10 @@ export class GameScreen extends Container {
     this.addChild(this.spsText);
 
     // Buildings panel (scrollable-ish column on the right)
-    this.buildingsContainer = new Container();
+    this.buildingsContainer = new Container({
+      x: 0,
+      y: 200,
+    });
     this.addChild(this.buildingsContainer);
 
     for (const def of BUILDING_DEFS) {
@@ -224,7 +227,7 @@ export class GameScreen extends Container {
           fill: 0xcccccc,
           fontFamily: "Arial",
         },
-        anchor: { x: 0, y: 0.5 },
+        anchor: { x: 0.5, y: 0.5 },
       });
       const state: BuildingState = { def, owned: 0, button: btn, label };
       btn.onPress.connect(() => this.buyBuilding(state));
@@ -262,39 +265,39 @@ export class GameScreen extends Container {
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
 
-    this.timer.x = width - 30;
+    this.timer.x = width - 80;
     this.timer.y = 24;
 
-    // Counter at top center
-    this.counter.x = width * 0.35;
+    // Counter at top center-left
+    this.counter.x = width * 0.4;
     this.counter.y = height * 0.12;
 
     // SPS below counter
-    this.spsText.x = width * 0.35;
+    this.spsText.x = width * 0.4;
     this.spsText.y = height * 0.12 + 50;
 
-    // Model info
-    this.modelText.x = width * 0.35;
-    this.modelText.y = height * 0.32;
+    // Main click button
+    this.addButton.x = width * 0.4;
+    this.addButton.y = height * 0.75;
 
-    // Main click button center-left
-    this.addButton.x = width * 0.35;
-    this.addButton.y = height * 0.55;
+    // --- Right panel ---
+    const panelX = width * 0.9;
 
-    // Bigger Model button below click
-    this.buyModelButton.x = width * 0.35;
-    this.buyModelButton.y = height * 0.75;
+    // Model upgrade button
+    this.buyModelButton.x = panelX;
+    this.buyModelButton.y = height * 0.8;
+    this.modelText.x = panelX;
+    this.modelText.y = height * 0.8 - 50;
 
-    // Buildings panel on the right side
-    const panelX = width * 0.72;
-    const startY = height * 0.1;
-    const rowHeight = 70;
+    // Building buttons
+    const startY = 0;
+    const rowHeight = 95;
     for (let i = 0; i < this.buildings.length; i++) {
       const b = this.buildings[i];
       b.button.x = panelX;
       b.button.y = startY + i * rowHeight;
-      b.label.x = panelX + 120;
-      b.label.y = startY + i * rowHeight;
+      b.label.x = panelX;
+      b.label.y = startY + i * rowHeight + 35;
     }
 
     // RAM chart fills bottom
@@ -359,7 +362,7 @@ export class GameScreen extends Container {
     if (level <= MODEL_NAMES.length) {
       return MODEL_NAMES[level - 1];
     }
-    return `Canard PC Slop v${level}`;
+    return `Canard AI v${level}`;
   }
 
   private updateModelDisplay(): void {
@@ -461,11 +464,16 @@ export class GameScreen extends Container {
     // Spawn from the counter position with small random spread
     const x = this.counter.x + (Math.random() - 0.5) * 60;
     const y = this.counter.y;
+    // Constrain bouncing area to the left zone (avoid right button panel)
+    const safeWidth = this.screenWidth * 0.8;
+    // Constrain height above RamChart
+    const chartHeight = Math.max(80, this.screenHeight * 0.15);
+    const safeHeight = this.screenHeight - chartHeight;
     const icon = new BouncingIcon(
       x,
       y,
-      this.screenWidth,
-      this.screenHeight,
+      safeWidth,
+      safeHeight,
       cfg.label,
       cfg.size,
       cfg.color,
@@ -501,15 +509,31 @@ export class GameScreen extends Container {
   }
 
   private spawnMilestoneCard(index: number): void {
-    const cardW = Math.min(360, this.screenWidth * 0.4);
+    // Constrain cards to the left area (avoid right button panel)
+    const safeWidth = this.screenWidth * 0.8;
+    // Constrain height above RamChart
+    const chartHeight = Math.max(80, this.screenHeight * 0.15);
+    const safeHeight = this.screenHeight - chartHeight;
+    const cardW = Math.min(360, safeWidth * 0.55);
     const cardH = cardW * 1.4;
     const card = new MilestoneCard(index, cardW, cardH);
 
-    // Scatter like cards on a table — random position & slight rotation
-    const margin = cardW * 0.3;
-    card.x = margin + Math.random() * (this.screenWidth - margin * 2);
-    card.y = margin + Math.random() * (this.screenHeight - margin * 2);
-    card.rotation = (Math.random() - 0.5) * 0.4; // ±~11°
+    // Distribute cards in a grid pattern with slight randomness
+    const cols = 3;
+    const col = index % cols;
+    const row = Math.floor(index / cols);
+    const cellW = (safeWidth - cardW) / cols;
+    const cellH =
+      (safeHeight - cardH) / Math.ceil(this.MILESTONES.length / cols);
+    const baseX = cardW / 2 + col * cellW + cellW * 0.5;
+    const baseY = cardH / 2 + row * cellH + cellH * 0.5;
+    // Add slight random offset for a natural look
+    card.x = baseX + (Math.random() - 0.5) * cellW * 0.3;
+    card.y = Math.min(
+      baseY + (Math.random() - 0.5) * cellH * 0.3,
+      safeHeight - cardH / 2,
+    );
+    card.rotation = (Math.random() - 0.5) * 0.25; // ±~7°
     card.alpha = 0.85;
 
     this.cardsContainer.addChild(card);
