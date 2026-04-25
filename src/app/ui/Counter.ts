@@ -21,7 +21,7 @@ class DigitReel extends Container {
   private animStart = 0;
   private animFrom = 0;
   private animTo = 0;
-  private mask: Graphics;
+  public override mask: Graphics;
 
   constructor(
     private fontSize: number,
@@ -59,7 +59,6 @@ class DigitReel extends Container {
     this.strip.mask = this.mask;
 
     this.strip.y = 0;
-    this.targetY = 0;
   }
 
   public setDigit(digit: number): void {
@@ -75,7 +74,6 @@ class DigitReel extends Container {
   public setDigitImmediate(digit: number): void {
     this.currentDigit = digit;
     this.strip.y = -digit * this.digitHeight;
-    this.targetY = this.strip.y;
     this.animating = false;
   }
 
