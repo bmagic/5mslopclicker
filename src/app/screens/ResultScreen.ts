@@ -2,7 +2,7 @@ import { Container } from "pixi.js";
 
 import { engine } from "../getEngine";
 import { ResultPanel } from "../ui/ResultPanel";
-import { GameScreen } from "./GameScreen";
+import { StartScreen } from "./StartScreen";
 
 /** Screen shown when the game is finished */
 export class ResultScreen extends Container {
@@ -34,6 +34,6 @@ export class ResultScreen extends Container {
   }
 
   private onRestartPressed(): void {
-    void engine().navigation.showScreen(GameScreen);
+    void engine().navigation.showScreen(StartScreen);
   }
 }

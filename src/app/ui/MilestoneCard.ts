@@ -1,28 +1,6 @@
 import { Assets, Container, Graphics, Sprite, Text } from "pixi.js";
 
-/** Card titles for overlay text */
-const MILESTONE_TITLES = [
-  "ackboo sclemu",
-  "Breizh Ellen",
-  "M. Chat Chat",
-  "Signal Reçu",
-  "GPU en Feu",
-  "SEO Parasite",
-  "L'IA Observe",
-  "Farm Bio",
-  "Burnout",
-  "Flood de Slop",
-  "Prompt Magique",
-  "Python Spaghetti",
-  "Crypto-Slop",
-  "Modèle Gelé",
-  "Stack Overflow",
-  "Fork Infini",
-  "Pumpkin Spice AI",
-  "Roi du Slop",
-  "To The Moon",
-  "Singularité",
-];
+import { MILESTONE_TITLES } from "../utils/milestones";
 
 /**
  * A milestone card using a JPG background image.

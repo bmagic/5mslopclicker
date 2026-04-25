@@ -17,8 +17,9 @@ export class StartPanel extends Container {
   private title: Label;
   private highscoreLabel: Label;
   private startButton: Button;
+  private milestonesButton: Button;
 
-  constructor(onStart: () => void) {
+  constructor(onStart: () => void, onMilestones: () => void) {
     super();
 
     this.bg = new Sprite(Texture.WHITE);
@@ -63,9 +64,19 @@ export class StartPanel extends Container {
       width: 260,
       height: 110,
     });
-    this.startButton.y = 80;
+    this.startButton.y = 60;
     this.startButton.onPress.connect(onStart);
     this.panel.addChild(this.startButton);
+
+    this.milestonesButton = new Button({
+      text: "Milestones",
+      width: 220,
+      height: 70,
+      fontSize: 22,
+    });
+    this.milestonesButton.y = 140;
+    this.milestonesButton.onPress.connect(onMilestones);
+    this.panel.addChild(this.milestonesButton);
   }
 
   public resize(width: number, height: number): void {

@@ -11,6 +11,7 @@ import { BUILDING_ICONS, BouncingIcon, ICON_PRESETS } from "../ui/FloatingIcon";
 import { MilestoneCard } from "../ui/MilestoneCard";
 import { RamChart } from "../ui/RamChart";
 import { Timer } from "../ui/Timer";
+import { MILESTONE_VALUES, unlockMilestone } from "../utils/milestones";
 import { ResultScreen } from "./ResultScreen";
 
 /** Definition of a building type (Cookie Clicker style) */
@@ -91,11 +92,6 @@ export class GameScreen extends Container {
   private iconsContainer: Container;
   private bouncingIcons: BouncingIcon[] = [];
   private nextMilestone = 0;
-  private readonly MILESTONES = [
-    50, 100, 250, 500, 1_000, 2_500, 5_000, 10_000, 25_000, 50_000, 100_000,
-    250_000, 500_000, 1_000_000, 2_500_000, 5_000_000, 10_000_000, 25_000_000,
-    50_000_000, 100_000_000,
-  ];
   private screenWidth = 0;
   private screenHeight = 0;
 
@@ -493,9 +489,10 @@ export class GameScreen extends Container {
   private checkMilestones(): void {
     const score = this.counter.getValue();
     while (
-      this.nextMilestone < this.MILESTONES.length &&
-      score >= this.MILESTONES[this.nextMilestone]
+      this.nextMilestone < MILESTONE_VALUES.length &&
+      score >= MILESTONE_VALUES[this.nextMilestone]
     ) {
+      unlockMilestone(this.nextMilestone);
       this.nextMilestone++;
       // Play jackpot sound
       engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 0.6 });
@@ -524,7 +521,7 @@ export class GameScreen extends Container {
     const row = Math.floor(index / cols);
     const cellW = (safeWidth - cardW) / cols;
     const cellH =
-      (safeHeight - cardH) / Math.ceil(this.MILESTONES.length / cols);
+      (safeHeight - cardH) / Math.ceil(MILESTONE_VALUES.length / cols);
     const baseX = cardW / 2 + col * cellW + cellW * 0.5;
     const baseY = cardH / 2 + row * cellH + cellH * 0.5;
     // Add slight random offset for a natural look
