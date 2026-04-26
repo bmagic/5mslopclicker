@@ -1,6 +1,6 @@
 import { FancyButton } from "@pixi/ui";
 import type { Ticker } from "pixi.js";
-import { Container, Text } from "pixi.js";
+import { Container, Graphics, Text } from "pixi.js";
 
 import { engine } from "../getEngine";
 import { PausePopup } from "../popups/PausePopup";
@@ -13,6 +13,7 @@ import { RamChart } from "../ui/RamChart";
 import { Timer } from "../ui/Timer";
 import { MILESTONE_VALUES, unlockMilestone } from "../utils/milestones";
 import { ResultScreen } from "./ResultScreen";
+import { StartScreen } from "./StartScreen";
 
 /** Definition of a building type (Cookie Clicker style) */
 interface BuildingDef {
@@ -71,6 +72,7 @@ export class GameScreen extends Container {
 
   private settingsButton: FancyButton;
   private pauseButton: FancyButton;
+  private stopButton: FancyButton;
   private addButton: Button;
   private buyModelButton: Button;
   private counter: Counter;
@@ -153,6 +155,14 @@ export class GameScreen extends Container {
       engine().navigation.presentPopup(PausePopup),
     );
     this.addChild(this.pauseButton);
+
+    this.stopButton = new FancyButton({
+      defaultView: this.createStopButtonView(),
+      anchor: 0.5,
+      animations: buttonAnimations,
+    });
+    this.stopButton.onPress.connect(() => this.stopGameAndReturnHome());
+    this.addChild(this.stopButton);
 
     // Main click button
     this.addButton = new Button({
@@ -258,6 +268,8 @@ export class GameScreen extends Container {
     this.screenHeight = height;
     this.pauseButton.x = 30;
     this.pauseButton.y = 30;
+    this.stopButton.x = this.pauseButton.x + 45;
+    this.stopButton.y = this.pauseButton.y;
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
 
@@ -324,6 +336,37 @@ export class GameScreen extends Container {
     gameWindow.__gameScore = this.counter.getValue();
 
     void engine().navigation.showScreen(ResultScreen);
+  }
+
+  private stopGameAndReturnHome(): void {
+    void engine().navigation.showScreen(StartScreen);
+  }
+
+  private createStopButtonView(): Container {
+    const view = new Container();
+
+    const bg = new Graphics();
+    bg.circle(0, 0, 16);
+    bg.fill(0xd84444);
+    bg.y = 16;
+    bg.x = 15;
+    view.addChild(bg);
+
+    const cross = new Text({
+      text: "X",
+      style: {
+        fontSize: 22,
+        fill: 0xffffff,
+        fontFamily: "Arial",
+        fontWeight: "bold",
+      },
+      anchor: 0.5,
+    });
+    cross.y = 15;
+    cross.x = 15;
+    view.addChild(cross);
+
+    return view;
   }
 
   // ---------- Bigger Model (click multiplier) ----------

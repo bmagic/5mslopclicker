@@ -101,12 +101,6 @@ export class MilestonesScreen extends Container {
     shadow.fill({ color: 0x000000, alpha: 0.4 });
     card.addChild(shadow);
 
-    // Frame
-    const frame = new Graphics();
-    frame.roundRect(-3, -3, w + 6, h + 6, 12);
-    frame.fill(0xffcc00);
-    card.addChild(frame);
-
     // Image background
     const n = index + 1;
     const texAlias = `main/milestones/milestone-${n}.jpg`;
@@ -116,23 +110,29 @@ export class MilestonesScreen extends Container {
       sprite.width = w;
       sprite.height = h;
       const clipMask = new Graphics();
-      clipMask.roundRect(0, 0, w, h, 8);
+      clipMask.roundRect(0, 0, w, h, 16);
       clipMask.fill(0xffffff);
       card.addChild(clipMask);
       sprite.mask = clipMask;
       card.addChild(sprite);
     } else {
       const fallback = new Graphics();
-      fallback.roundRect(0, 0, w, h, 8);
+      fallback.roundRect(0, 0, w, h, 16);
       fallback.fill(0x1a1a2e);
       card.addChild(fallback);
     }
 
-    // Title overlay
+    // Title overlay (coins arrondis en bas pour ne pas cacher l'arrondi de l'image)
     const titleBg = new Graphics();
-    titleBg.roundRect(0, h - 50, w, 50, 0);
+    titleBg.roundRect(0, h - 50, w, 50, 16);
     titleBg.fill({ color: 0x000000, alpha: 0.65 });
     card.addChild(titleBg);
+
+    // Frame (contour jaune, agrandi de 3px tout autour)
+    const frame = new Graphics();
+    frame.roundRect(-3, -3, w + 6, h + 6, 16);
+    frame.stroke({ color: 0xffcc00, width: 4 });
+    card.addChild(frame);
 
     const title = MILESTONE_TITLES[index % MILESTONE_TITLES.length];
     const titleText = new Text({
@@ -285,7 +285,7 @@ export class MilestonesScreen extends Container {
       const row = Math.floor(i / COLS);
       const child = this.grid.children[i];
       child.x = startX + col * (this.cardW + CARD_GAP);
-      child.y = row * (this.cardH + CARD_GAP);
+      child.y = row * (this.cardH + CARD_GAP) + 3;
     }
 
     this.grid.y = this.gridTop - this.scrollY;
