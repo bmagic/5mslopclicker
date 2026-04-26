@@ -16,7 +16,7 @@ export const MILESTONE_TITLES = [
   "Sebum de Rothschild",
   "Pokobé",
   "Ivan maison 4",
-  "Perco",
+  "Percopoly",
   "Noddus",
   "Caféine",
   "Soupape François",

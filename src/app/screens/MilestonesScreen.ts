@@ -264,7 +264,7 @@ export class MilestonesScreen extends Container {
     const totalGridH = rows * this.cardH + (rows - 1) * CARD_GAP;
 
     // Scrolling bounds
-    this.maxScrollY = Math.max(0, totalGridH - this.gridAvailH);
+    this.maxScrollY = Math.max(0, totalGridH - this.gridAvailH + 70);
     this.scrollY = Math.min(this.scrollY, this.maxScrollY);
 
     // Mask for the grid area
@@ -285,7 +285,7 @@ export class MilestonesScreen extends Container {
       const row = Math.floor(i / COLS);
       const child = this.grid.children[i];
       child.x = startX + col * (this.cardW + CARD_GAP);
-      child.y = row * (this.cardH + CARD_GAP) + 3;
+      child.y = row * (this.cardH + CARD_GAP) + 5;
     }
 
     this.grid.y = this.gridTop - this.scrollY;
