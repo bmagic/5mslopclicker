@@ -9,13 +9,13 @@ export const MILESTONE_VALUES = [
 
 /** Milestone card titles */
 export const MILESTONE_TITLES = [
-  "ackboo sclemu",
+  "ackboo vacances",
   "Breizh Ellen",
   "M. Chat Chat",
-  "Denis F1",
-  "GPU en Feu",
-  "SEO Parasite",
-  "L'IA Observe",
+  "Denis balade",
+  "Sebum de Rothschild",
+  "Pokobé",
+  "Ivan maison 4",
   "Farm Bio",
   "Burnout",
   "Flood de Slop",
