@@ -31,6 +31,15 @@ export class MilestonesScreen extends Container {
   private gridTop = 100;
   private gridAvailH = 0;
 
+  /** Full-size preview overlay shown on hover */
+  private preview: Container;
+  private previewBg: Graphics;
+  private previewSprite: Sprite | null = null;
+  private previewTitle: Text;
+  private previewMask: Graphics;
+  private screenW = 0;
+  private screenH = 0;
+
   constructor() {
     super();
 
@@ -74,6 +83,35 @@ export class MilestonesScreen extends Container {
       void engine().navigation.showScreen(StartScreen);
     });
     this.addChild(this.backButton);
+
+    // Preview overlay (hidden by default, non-interactive so it doesn't steal hover from cards)
+    this.preview = new Container();
+    this.preview.visible = false;
+    this.preview.eventMode = "none";
+
+    this.previewBg = new Graphics();
+    this.preview.addChild(this.previewBg);
+
+    this.previewMask = new Graphics();
+    this.preview.addChild(this.previewMask);
+
+    this.previewTitle = new Text({
+      text: "",
+      style: {
+        fontSize: 28,
+        fill: 0xffffff,
+        fontFamily: "monospace",
+        fontWeight: "bold",
+        dropShadow: {
+          color: 0x000000,
+          distance: 2,
+        },
+      },
+      anchor: 0.5,
+    });
+    this.preview.addChild(this.previewTitle);
+
+    this.addChild(this.preview);
 
     this.buildGrid();
   }
@@ -164,6 +202,14 @@ export class MilestonesScreen extends Container {
     valText.y = 16;
     card.addChild(valText);
 
+    // Make card interactive for hover preview
+    card.eventMode = "static";
+    card.cursor = "pointer";
+    card.on("pointerenter", () => this.showPreview(index));
+    card.on("pointerleave", () => {
+      this.preview.visible = false;
+    });
+
     return card;
   }
 
@@ -236,16 +282,69 @@ export class MilestonesScreen extends Container {
     return card;
   }
 
+  private showPreview(index: number): void {
+    const n = index + 1;
+    const texAlias = `main/milestones/milestone-${n}.jpg`;
+    const texture = Assets.get(texAlias);
+    if (!texture) return;
+
+    // Remove old preview sprite
+    if (this.previewSprite) {
+      this.preview.removeChild(this.previewSprite);
+      this.previewSprite = null;
+    }
+
+    const w = this.screenW;
+    const h = this.screenH;
+
+    // Semi-transparent backdrop
+    this.previewBg.clear();
+    this.previewBg.rect(0, 0, w, h);
+    this.previewBg.fill({ color: 0x000000, alpha: 0.75 });
+
+    // Compute max display size while keeping aspect ratio and leaving padding
+    const pad = 60;
+    const maxW = w - pad * 2;
+    const maxH = h - pad * 2 - 50; // 50 for title at bottom
+    const texW = texture.width;
+    const texH = texture.height;
+    const scale = Math.min(maxW / texW, maxH / texH, 1);
+    const dispW = texW * scale;
+    const dispH = texH * scale;
+
+    const sprite = new Sprite(texture);
+    sprite.width = dispW;
+    sprite.height = dispH;
+    sprite.x = (w - dispW) / 2;
+    sprite.y = (h - dispH - 50) / 2;
+
+    // Rounded mask for preview
+    this.previewMask.clear();
+    this.previewMask.roundRect(sprite.x, sprite.y, dispW, dispH, 16);
+    this.previewMask.fill(0xffffff);
+    sprite.mask = this.previewMask;
+
+    this.preview.addChild(sprite);
+    this.previewSprite = sprite;
+
+    // Title below image
+    const title = MILESTONE_TITLES[index % MILESTONE_TITLES.length];
+    this.previewTitle.text = title;
+    this.previewTitle.x = w / 2;
+    this.previewTitle.y = sprite.y + dispH + 30;
+
+    this.preview.visible = true;
+  }
+
   public resize(width: number, height: number): void {
+    this.screenW = width;
+    this.screenH = height;
+
     this.title.x = width * 0.5;
     this.title.y = 30;
 
     // Make this screen interactive for wheel events
     this.hitArea = {
-      x: 0,
-      y: 0,
-      width,
-      height,
       contains: (x: number, y: number) =>
         x >= 0 && x <= width && y >= 0 && y <= height,
     };
@@ -292,6 +391,10 @@ export class MilestonesScreen extends Container {
 
     this.backButton.x = width * 0.5;
     this.backButton.y = height - 50;
+
+    // Keep preview overlay on top
+    this.preview.visible = false;
+    this.addChild(this.preview);
   }
 
   public async show(): Promise<void> {}

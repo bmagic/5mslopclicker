@@ -515,7 +515,6 @@ export class GameScreen extends Container {
       safeHeight,
       cfg.label,
       cfg.size,
-      cfg.color,
     );
     this.iconsContainer.addChild(icon);
     this.bouncingIcons.push(icon);

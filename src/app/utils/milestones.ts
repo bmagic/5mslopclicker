@@ -9,13 +9,13 @@ export const MILESTONE_VALUES = [
 
 /** Milestone card titles */
 export const MILESTONE_TITLES = [
-  "ackboo vacances",
+  "ackboo en vacances",
   "Breizh Ellen",
   "M. Chat Chat",
-  "Denis balade",
+  "Denis en balade",
   "Sebum de Rothschild",
   "Pokobé",
-  "Ivan maison 4",
+  "Ivan 4ième maison",
   "Percopoly",
   "Noddus",
   "Caféine",

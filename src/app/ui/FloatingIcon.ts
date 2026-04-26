@@ -1,4 +1,4 @@
-import { Container, Graphics, Text } from "pixi.js";
+import { Container, Text } from "pixi.js";
 
 /** Options for spawning a floating icon */
 export interface FloatingIconOptions {
@@ -10,8 +10,6 @@ export interface FloatingIconOptions {
   y: number;
   /** Size of the placeholder square behind the label */
   size?: number;
-  /** Color of the placeholder square */
-  color?: number;
   /** Duration of the animation in ms */
   duration?: number;
   /** How far the icon drifts upward */
@@ -43,7 +41,6 @@ export class FloatingIcon extends Container {
       x,
       y,
       size = 32,
-      color = 0xffffff,
       duration = 1200,
       driftY = -80,
       spreadX = 40,
@@ -57,13 +54,6 @@ export class FloatingIcon extends Container {
     this.driftY = driftY;
     this.startScale = startScale;
     this.offsetX = (Math.random() - 0.5) * spreadX * 2;
-
-    // Colored placeholder square
-    const bg = new Graphics();
-    bg.roundRect(-size / 2, -size / 2, size, size, 6);
-    bg.fill(color);
-    bg.alpha = 0.6;
-    this.addChild(bg);
 
     // Emoji / text label on top
     const txt = new Text({
@@ -122,7 +112,6 @@ export const ICON_PRESETS = {
   click: {
     label: "💩",
     size: 24,
-    color: 0x8b6914,
     duration: 800,
     driftY: -50,
     spreadX: 30,
@@ -130,7 +119,6 @@ export const ICON_PRESETS = {
   gpu: {
     label: "🖥️",
     size: 28,
-    color: 0x4a9e4a,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -138,7 +126,6 @@ export const ICON_PRESETS = {
   bot: {
     label: "🤖",
     size: 28,
-    color: 0x3a7bd5,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -146,7 +133,6 @@ export const ICON_PRESETS = {
   farm: {
     label: "🏭",
     size: 28,
-    color: 0x8b4513,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -154,7 +140,6 @@ export const ICON_PRESETS = {
   seo: {
     label: "🕷️",
     size: 28,
-    color: 0x333333,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -162,7 +147,6 @@ export const ICON_PRESETS = {
   influencer: {
     label: "📱",
     size: 28,
-    color: 0xff69b4,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -170,7 +154,6 @@ export const ICON_PRESETS = {
   datacenter: {
     label: "🏗️",
     size: 28,
-    color: 0x708090,
     duration: 1000,
     driftY: -60,
     spreadX: 20,
@@ -178,7 +161,6 @@ export const ICON_PRESETS = {
   model: {
     label: "🧠",
     size: 36,
-    color: 0xffcc00,
     duration: 1400,
     driftY: -100,
     spreadX: 50,
@@ -187,7 +169,6 @@ export const ICON_PRESETS = {
   milestone: {
     label: "⭐",
     size: 30,
-    color: 0xffd700,
     duration: 1500,
     driftY: -120,
     spreadX: 80,
@@ -217,7 +198,6 @@ export class BouncingIcon extends Container {
     screenH: number,
     label = "💩",
     size = 24,
-    color = 0x8b6914,
   ) {
     super();
     this.x = x;
@@ -232,11 +212,6 @@ export class BouncingIcon extends Container {
     this.spin = (Math.random() - 0.5) * 0.3;
     this.maxBounces = 2 + Math.floor(Math.random() * 6);
     this.bounciness = 0.4 + Math.random() * 0.5;
-
-    const bg = new Graphics();
-    bg.roundRect(-size / 2, -size / 2, size, size, 6);
-    bg.fill({ color, alpha: 0.6 });
-    this.addChild(bg);
 
     const txt = new Text({
       text: label,
