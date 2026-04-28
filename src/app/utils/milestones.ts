@@ -22,7 +22,7 @@ export const MILESTONE_TITLES = [
   "Café sans sucre",
   "Chamentation",
   "Winter afternoon",
-  "Milestone 14",
+  "Banane enragée",
   "Milestone 15",
   "Milestone 16",
   "Milestone 17",

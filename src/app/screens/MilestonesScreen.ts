@@ -120,10 +120,12 @@ export class MilestonesScreen extends Container {
     const unlocked = getUnlockedMilestones();
 
     for (let i = 0; i < MILESTONE_VALUES.length; i++) {
-      const isUnlocked = unlocked.has(i);
-      const card = isUnlocked
-        ? this.createUnlockedCard(i)
-        : this.createLockedCard(i);
+      // const isUnlocked = unlocked.has(i);
+      // const card = isUnlocked
+      //   ? this.createUnlockedCard(i)
+      //   : this.createLockedCard(i);
+      const card = this.createUnlockedCard(i);
+
       this.grid.addChild(card);
     }
   }
