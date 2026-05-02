@@ -44,7 +44,7 @@ export class PausePopup extends Container {
     this.title.y = -80;
     this.panel.addChild(this.title);
 
-    this.doneButton = new Button({ text: "M'excuser" });
+    this.doneButton = new Button({ text: "M'excuser et retourner au boulot" });
     this.doneButton.y = 70;
     this.doneButton.onPress.connect(() => engine().navigation.dismissPopup());
     this.panel.addChild(this.doneButton);

@@ -8,7 +8,6 @@ import { MilestonesScreen } from "./MilestonesScreen";
 
 /** Screen shown at game start */
 export class StartScreen extends Container {
-  /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
   private startPanel: StartPanel;

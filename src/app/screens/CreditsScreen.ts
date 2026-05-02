@@ -94,6 +94,7 @@ const CREDITS_DATA: { section: string; lines: string[] }[] = [
   },
 ];
 
+/** Screen shown in the credits section of the start menu */
 export class CreditsScreen extends Container {
   public static assetBundles = ["main"];
 

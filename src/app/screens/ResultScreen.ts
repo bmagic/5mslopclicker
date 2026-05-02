@@ -6,7 +6,6 @@ import { StartScreen } from "./StartScreen";
 
 /** Screen shown when the game is finished */
 export class ResultScreen extends Container {
-  /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
   private resultPanel: ResultPanel;

@@ -44,7 +44,7 @@ export class MilestonesScreen extends Container {
     super();
 
     this.title = new Text({
-      text: "Milestones",
+      text: "Objectifs",
       style: {
         fontSize: 48,
         fill: 0xffffff,
@@ -120,11 +120,10 @@ export class MilestonesScreen extends Container {
     const unlocked = getUnlockedMilestones();
 
     for (let i = 0; i < MILESTONE_VALUES.length; i++) {
-      // const isUnlocked = unlocked.has(i);
-      // const card = isUnlocked
-      //   ? this.createUnlockedCard(i)
-      //   : this.createLockedCard(i);
-      const card = this.createUnlockedCard(i);
+      const isUnlocked = unlocked.has(i);
+      const card = isUnlocked
+        ? this.createUnlockedCard(i)
+        : this.createLockedCard(i);
 
       this.grid.addChild(card);
     }
@@ -135,7 +134,7 @@ export class MilestonesScreen extends Container {
     const h = this.cardH || 250;
     const card = new Container();
 
-    // Shadow
+    // Shadow around card
     const shadow = new Graphics();
     shadow.roundRect(4, 4, w, h, 10);
     shadow.fill({ color: 0x000000, alpha: 0.4 });
@@ -162,13 +161,13 @@ export class MilestonesScreen extends Container {
       card.addChild(fallback);
     }
 
-    // Title overlay (coins arrondis en bas pour ne pas cacher l'arrondi de l'image)
+    // Title overlay
     const titleBg = new Graphics();
     titleBg.roundRect(0, h - 50, w, 50, 16);
     titleBg.fill({ color: 0x000000, alpha: 0.65 });
     card.addChild(titleBg);
 
-    // Frame (contour jaune, agrandi de 3px tout autour)
+    // Frame
     const frame = new Graphics();
     frame.roundRect(-3, -3, w + 6, h + 6, 16);
     frame.stroke({ color: 0xffcc00, width: 4 });
@@ -189,7 +188,7 @@ export class MilestonesScreen extends Container {
     titleText.y = h - 25;
     card.addChild(titleText);
 
-    // Value label at top
+    // Value to reach the milestone
     const valText = new Text({
       text: `${formatMilestoneValue(MILESTONE_VALUES[index])} slops`,
       style: {
@@ -204,7 +203,7 @@ export class MilestonesScreen extends Container {
     valText.y = 16;
     card.addChild(valText);
 
-    // Make card interactive for hover preview
+    // Hover interaction to show preview
     card.eventMode = "static";
     card.cursor = "pointer";
     card.on("pointerenter", () => this.showPreview(index));
@@ -290,7 +289,6 @@ export class MilestonesScreen extends Container {
     const texture = Assets.get(texAlias);
     if (!texture) return;
 
-    // Remove old preview sprite
     if (this.previewSprite) {
       this.preview.removeChild(this.previewSprite);
       this.previewSprite = null;

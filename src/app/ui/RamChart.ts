@@ -49,7 +49,7 @@ export class RamChart extends Container {
 
     // Title with price
     this.titleText = new Text({
-      text: `📈 RAM Price ($${BASE_PRICE.toFixed(2)}/GB)`,
+      text: `Prix de la RAM ($${BASE_PRICE.toFixed(2)}/GB)`,
       style: {
         fontSize: 14,
         fill: 0x999999,

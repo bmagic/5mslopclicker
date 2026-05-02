@@ -15,14 +15,12 @@ import { MILESTONE_VALUES, unlockMilestone } from "../utils/milestones";
 import { ResultScreen } from "./ResultScreen";
 import { StartScreen } from "./StartScreen";
 
-/** Definition of a building type (Cookie Clicker style) */
 interface BuildingDef {
   name: string;
   baseCost: number;
-  baseSps: number; // slops per second
+  baseSps: number;
 }
 
-/** Runtime state for an owned building */
 interface BuildingState {
   def: BuildingDef;
   owned: number;
@@ -30,7 +28,7 @@ interface BuildingState {
   label: Text;
 }
 
-/** Cookie Clicker-style cost growth rate */
+/** Cost growth factor for both buildings and model upgrades, applied exponentially */
 const COST_GROWTH = 1.15;
 
 /** All available buildings, ordered by tier */
@@ -43,7 +41,7 @@ const BUILDING_DEFS: BuildingDef[] = [
   { name: "Datacenter", baseCost: 75_000, baseSps: 400 },
 ];
 
-/** AI model names, from worst to best (and beyond) */
+/** AI model names */
 const MODEL_NAMES: string[] = [
   "Bard 0.1",
   "ChatGPT 3.5-Turbo-Slop",
@@ -67,7 +65,6 @@ const MODEL_NAMES: string[] = [
 
 /** Screen where the game is being played */
 export class GameScreen extends Container {
-  /** Assets bundles required by this screen */
   public static assetBundles = ["main"];
 
   private settingsButton: FancyButton;
@@ -83,7 +80,7 @@ export class GameScreen extends Container {
   private modelText: Text;
   private readonly MODEL_BASE_COST = 75;
 
-  // Buildings (passive income)
+  // Buildings
   private buildings: BuildingState[] = [];
   private buildingsContainer: Container;
   private totalSps = 0;
@@ -104,7 +101,7 @@ export class GameScreen extends Container {
   private cardsContainer: Container;
   private milestoneCards: MilestoneCard[] = [];
 
-  // Minute-warning sound thresholds (in ms) → sound alias
+  // Minute-warning sound thresholds
   private minuteWarningSounds = new Map<number, string>([
     [4 * 60_000, "main/sounds/sfx-warning-4min.wav"],
     [3 * 60_000, "main/sounds/sfx-warning-3min.wav"],
@@ -117,11 +114,9 @@ export class GameScreen extends Container {
   constructor() {
     super();
 
-    // Milestone cards layer (very back)
     this.cardsContainer = new Container();
     this.addChild(this.cardsContainer);
 
-    // Floating icons layer (behind everything else)
     this.iconsContainer = new Container();
     this.addChild(this.iconsContainer);
 
@@ -146,6 +141,7 @@ export class GameScreen extends Container {
       },
     };
 
+    // SettingsButton
     this.settingsButton = new FancyButton({
       defaultView: "icon-settings.png",
       anchor: 0.5,
@@ -156,6 +152,7 @@ export class GameScreen extends Container {
     );
     this.addChild(this.settingsButton);
 
+    // PauseButton
     this.pauseButton = new FancyButton({
       defaultView: "icon-pause.png",
       anchor: 0.5,
@@ -166,6 +163,7 @@ export class GameScreen extends Container {
     );
     this.addChild(this.pauseButton);
 
+    // StopButton
     this.stopButton = new FancyButton({
       defaultView: this.createStopButtonView(),
       anchor: 0.5,
@@ -176,7 +174,7 @@ export class GameScreen extends Container {
 
     // Main click button
     this.addButton = new Button({
-      text: "Generate Slop",
+      text: "Générer Slop",
       width: 300,
       height: 110,
     });
@@ -189,7 +187,7 @@ export class GameScreen extends Container {
     });
     this.addChild(this.addButton);
 
-    // "Bigger Model" upgrade button (click multiplier)
+    // Model upgrade button
     this.buyModelButton = new Button({
       text: this.getModelButtonText(),
       width: 280,
@@ -199,6 +197,7 @@ export class GameScreen extends Container {
     this.buyModelButton.onPress.connect(() => this.buyModel());
     this.addChild(this.buyModelButton);
 
+    // Model text
     this.modelText = new Text({
       text: this.getModelDisplayText(),
       style: {
@@ -210,7 +209,7 @@ export class GameScreen extends Container {
     });
     this.addChild(this.modelText);
 
-    // Slops per second display
+    // Slops per second text
     this.spsText = new Text({
       text: "0 slops/sec",
       style: {
@@ -222,7 +221,7 @@ export class GameScreen extends Container {
     });
     this.addChild(this.spsText);
 
-    // Buildings panel (scrollable-ish column on the right)
+    // Buildings
     this.buildingsContainer = new Container({
       x: 0,
       y: 200,
@@ -252,7 +251,7 @@ export class GameScreen extends Container {
       this.buildings.push(state);
     }
 
-    // RAM price chart at the bottom
+    // RAM chart
     this.ramChart = new RamChart();
     this.addChild(this.ramChart);
   }
@@ -277,25 +276,25 @@ export class GameScreen extends Container {
   public resize(width: number, height: number) {
     this.screenWidth = width;
     this.screenHeight = height;
+
     this.pauseButton.x = 30;
     this.pauseButton.y = 30;
+
     this.stopButton.x = this.pauseButton.x + 45;
     this.stopButton.y = this.pauseButton.y;
+
     this.settingsButton.x = width - 30;
     this.settingsButton.y = 30;
 
     this.timer.x = width - 80;
     this.timer.y = 24;
 
-    // Counter at top center-left
     this.counter.x = width * 0.4;
     this.counter.y = height * 0.12;
 
-    // SPS below counter
     this.spsText.x = width * 0.4;
     this.spsText.y = height * 0.12 + 50;
 
-    // Main click button
     this.addButton.x = width * 0.4;
     this.addButton.y = height * 0.75;
 
@@ -305,6 +304,7 @@ export class GameScreen extends Container {
     // Model upgrade button
     this.buyModelButton.x = panelX;
     this.buyModelButton.y = height * 0.8;
+
     this.modelText.x = panelX;
     this.modelText.y = height * 0.8 - 50;
 
@@ -319,7 +319,7 @@ export class GameScreen extends Container {
       b.label.y = startY + i * rowHeight + 35;
     }
 
-    // RAM chart fills bottom
+    // RAM chart
     const chartHeight = Math.max(80, height * 0.15);
     this.ramChart.x = 0;
     this.ramChart.y = height - chartHeight;
@@ -340,7 +340,6 @@ export class GameScreen extends Container {
   }
 
   // ---------- Minute Warnings ----------
-
   private checkMinuteWarnings(): void {
     const remaining = this.timer.getRemainingMs();
     for (const [threshold, alias] of this.minuteWarningSounds) {
@@ -352,7 +351,6 @@ export class GameScreen extends Container {
   }
 
   // ---------- Finish ----------
-
   private finishGame(): void {
     if (engine().navigation.currentPopup) {
       void engine().navigation.dismissPopup();
@@ -395,7 +393,7 @@ export class GameScreen extends Container {
     return view;
   }
 
-  // ---------- Bigger Model (click multiplier) ----------
+  // ---------- Model (click multiplier) ----------
 
   private buyModel(): void {
     const cost = this.getModelCost();
@@ -566,7 +564,7 @@ export class GameScreen extends Container {
       engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 0.6 });
       // Spawn milestone background card
       this.spawnMilestoneCard(this.nextMilestone - 1);
-      // Massive star explosion (bypasses icon cap)
+      // Star explosion
       for (let i = 0; i < 500; i++) {
         this.spawnBouncingIcon("milestone", true);
       }
@@ -583,7 +581,7 @@ export class GameScreen extends Container {
     const cardH = cardW * 1.4;
     const card = new MilestoneCard(index, cardW, cardH);
 
-    // Distribute cards in a grid pattern with slight randomness
+    // Distribute cards in a grid pattern with randomness for a natural look
     const cols = 3;
     const col = index % cols;
     const row = Math.floor(index / cols);

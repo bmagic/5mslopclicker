@@ -97,9 +97,7 @@ class DigitReel extends Container {
   }
 }
 
-/**
- * Odometer-style counter with rolling digit animation
- */
+/** Counter with odometer-style rolling digits */
 export class Counter extends Container {
   private count = 0;
   private reels: DigitReel[] = [];
@@ -160,7 +158,6 @@ export class Counter extends Container {
   }
 
   private buildReels(value: number): void {
-    // Remove old reels
     this.reelsContainer.removeChildren();
     this.reels = [];
 
@@ -175,7 +172,6 @@ export class Counter extends Container {
 
     this.layoutReels();
 
-    // Set initial digits immediately (no animation)
     const padded = str.padStart(numDigits, "0");
     for (let i = 0; i < numDigits; i++) {
       this.reels[i].setDigitImmediate(Number(padded[i]));

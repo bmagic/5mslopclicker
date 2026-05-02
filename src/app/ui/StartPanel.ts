@@ -36,11 +36,11 @@ export class StartPanel extends Container {
     this.panel = new Container();
     this.addChild(this.panel);
 
-    this.panelBase = new RoundedBox({ width: 640, height: 360 });
+    this.panelBase = new RoundedBox({ width: 740, height: 360 });
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
-      text: "Start game",
+      text: "5m Slop Clicker",
       style: {
         fill: 0xec1561,
         fontSize: 64,
@@ -65,7 +65,7 @@ export class StartPanel extends Container {
     this.panel.addChild(this.highscoreLabel);
 
     this.startButton = new Button({
-      text: "Start",
+      text: "Démarrer",
       width: 260,
       height: 110,
     });
@@ -74,7 +74,7 @@ export class StartPanel extends Container {
     this.panel.addChild(this.startButton);
 
     this.milestonesButton = new Button({
-      text: "Milestones",
+      text: "Objectifs",
       width: 220,
       height: 70,
       fontSize: 22,

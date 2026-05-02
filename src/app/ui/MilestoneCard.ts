@@ -2,10 +2,7 @@ import { Assets, Container, Graphics, Sprite, Text } from "pixi.js";
 
 import { MILESTONE_TITLES } from "../utils/milestones";
 
-/**
- * A milestone card using a JPG background image.
- * Images are in raw-assets/main{m}/milestones/milestone-N.jpg — replace them with your own art.
- */
+/** Milestone card with background image and title overlay */
 export class MilestoneCard extends Container {
   constructor(milestoneIndex: number, cardWidth: number, cardHeight: number) {
     super();
