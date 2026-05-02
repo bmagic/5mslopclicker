@@ -82,6 +82,11 @@ Banane: Felix Rosa
 Fraise: Mustafa Akin
 Doom: Screenshot by Kierbalowsky, Doom property of Microsoft
 
+## Kocobé Miku
+
+Photo: Sơn Ngọc
+Negi: Larisa P.
+
 ## Perco RoadZero
 
 Fond marin: Dajana Reçi

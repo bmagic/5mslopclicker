@@ -24,7 +24,7 @@ export const MILESTONE_TITLES = [
   "Winter afternoon",
   "Jumpscare",
   "Vélo cargo",
-  "Kokobé ",
+  "Kocobé Miku",
   "Perco RoadZero",
   "Fruiter Shooter",
   "Bromance 1",
