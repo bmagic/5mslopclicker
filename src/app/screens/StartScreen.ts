@@ -2,6 +2,7 @@ import { Container } from "pixi.js";
 
 import { engine } from "../getEngine";
 import { StartPanel } from "../ui/StartPanel";
+import { CreditsScreen } from "./CreditsScreen";
 import { GameScreen } from "./GameScreen";
 import { MilestonesScreen } from "./MilestonesScreen";
 
@@ -18,6 +19,7 @@ export class StartScreen extends Container {
     this.startPanel = new StartPanel(
       () => this.onStartPressed(),
       () => this.onMilestonesPressed(),
+      () => this.onCreditsPressed(),
     );
     this.addChild(this.startPanel);
   }
@@ -36,5 +38,9 @@ export class StartScreen extends Container {
 
   private onMilestonesPressed(): void {
     void engine().navigation.showScreen(MilestonesScreen);
+  }
+
+  private onCreditsPressed(): void {
+    void engine().navigation.showScreen(CreditsScreen);
   }
 }

@@ -1,4 +1,4 @@
-import { Container, Sprite, Texture } from "pixi.js";
+import { Container, Sprite, Text, Texture } from "pixi.js";
 
 import { storage } from "../../engine/utils/storage";
 import { Button } from "./Button";
@@ -18,8 +18,13 @@ export class StartPanel extends Container {
   private highscoreLabel: Label;
   private startButton: Button;
   private milestonesButton: Button;
+  private creditsLink: Text;
 
-  constructor(onStart: () => void, onMilestones: () => void) {
+  constructor(
+    onStart: () => void,
+    onMilestones: () => void,
+    onCredits: () => void,
+  ) {
     super();
 
     this.bg = new Sprite(Texture.WHITE);
@@ -77,6 +82,20 @@ export class StartPanel extends Container {
     this.milestonesButton.y = 140;
     this.milestonesButton.onPress.connect(onMilestones);
     this.panel.addChild(this.milestonesButton);
+
+    this.creditsLink = new Text({
+      text: "Crédits",
+      style: {
+        fontSize: 16,
+        fill: 0x999999,
+        fontFamily: "monospace",
+      },
+      anchor: { x: 0.5, y: 0 },
+    });
+    this.creditsLink.eventMode = "static";
+    this.creditsLink.cursor = "pointer";
+    this.creditsLink.on("pointertap", onCredits);
+    this.addChild(this.creditsLink);
   }
 
   public resize(width: number, height: number): void {
@@ -84,5 +103,7 @@ export class StartPanel extends Container {
     this.bg.height = height;
     this.panel.x = width * 0.5;
     this.panel.y = height * 0.5;
+    this.creditsLink.x = width * 0.5;
+    this.creditsLink.y = height - 30;
   }
 }
