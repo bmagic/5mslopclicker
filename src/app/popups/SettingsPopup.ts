@@ -48,7 +48,7 @@ export class SettingsPopup extends Container {
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
-      text: "Settings",
+      text: "Paramètres",
       style: {
         fill: 0xec1561,
         fontSize: 50,
@@ -78,19 +78,19 @@ export class SettingsPopup extends Container {
     this.layout.y = -80;
     this.panel.addChild(this.layout);
 
-    this.masterSlider = new VolumeSlider("Master Volume");
+    this.masterSlider = new VolumeSlider("Volume principal");
     this.masterSlider.onUpdate.connect((v) => {
       userSettings.setMasterVolume(v / 100);
     });
     this.layout.addChild(this.masterSlider);
 
-    this.bgmSlider = new VolumeSlider("BGM Volume");
+    this.bgmSlider = new VolumeSlider("Volume Musique");
     this.bgmSlider.onUpdate.connect((v) => {
       userSettings.setBgmVolume(v / 100);
     });
     this.layout.addChild(this.bgmSlider);
 
-    this.sfxSlider = new VolumeSlider("SFX Volume");
+    this.sfxSlider = new VolumeSlider("Volume Effets");
     this.sfxSlider.onUpdate.connect((v) => {
       userSettings.setSfxVolume(v / 100);
     });

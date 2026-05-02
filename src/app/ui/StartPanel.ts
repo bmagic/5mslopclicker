@@ -40,7 +40,7 @@ export class StartPanel extends Container {
     this.panel.addChild(this.panelBase);
 
     this.title = new Label({
-      text: "5m Slop Clicker",
+      text: "5min Slop Clicker",
       style: {
         fill: 0xec1561,
         fontSize: 64,

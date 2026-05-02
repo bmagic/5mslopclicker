@@ -101,16 +101,6 @@ export class GameScreen extends Container {
   private cardsContainer: Container;
   private milestoneCards: MilestoneCard[] = [];
 
-  // Minute-warning sound thresholds
-  private minuteWarningSounds = new Map<number, string>([
-    [4 * 60_000, "main/sounds/sfx-warning-4min.wav"],
-    [3 * 60_000, "main/sounds/sfx-warning-3min.wav"],
-    [2 * 60_000, "main/sounds/sfx-warning-2min.wav"],
-    [1 * 60_000, "main/sounds/sfx-warning-1min.wav"],
-    [0, "main/sounds/sfx-warning-0min.wav"],
-  ]);
-  private triggeredWarnings = new Set<number>();
-
   constructor() {
     super();
 
@@ -265,8 +255,7 @@ export class GameScreen extends Container {
     this.updatePassiveIncome(time.deltaMS);
     this.updateIcons(time.deltaMS);
     this.checkMilestones();
-    this.checkMinuteWarnings();
-    this.ramChart.update(time.deltaMS, this.counter.getValue());
+    this.ramChart.update(time.deltaMS, this.totalSps);
 
     if (this.timer.isFinished()) {
       this.finishGame();
@@ -337,17 +326,6 @@ export class GameScreen extends Container {
 
   public blur() {
     // No auto-pause popup during game, optional optimization
-  }
-
-  // ---------- Minute Warnings ----------
-  private checkMinuteWarnings(): void {
-    const remaining = this.timer.getRemainingMs();
-    for (const [threshold, alias] of this.minuteWarningSounds) {
-      if (!this.triggeredWarnings.has(threshold) && remaining <= threshold) {
-        this.triggeredWarnings.add(threshold);
-        engine().audio.sfx.play(alias, { volume: 0.7 });
-      }
-    }
   }
 
   // ---------- Finish ----------
@@ -561,7 +539,7 @@ export class GameScreen extends Container {
       unlockMilestone(this.nextMilestone);
       this.nextMilestone++;
       // Play jackpot sound
-      engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 0.6 });
+      engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 1.4 });
       // Spawn milestone background card
       this.spawnMilestoneCard(this.nextMilestone - 1);
       // Star explosion

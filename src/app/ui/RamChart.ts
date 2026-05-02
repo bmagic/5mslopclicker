@@ -49,7 +49,7 @@ export class RamChart extends Container {
 
     // Title with price
     this.titleText = new Text({
-      text: `Prix de la RAM ($${BASE_PRICE.toFixed(2)}/GB)`,
+      text: `Prix de la RAM   ($${BASE_PRICE.toFixed(2)}/GB)`,
       style: {
         fontSize: 14,
         fill: 0x999999,
@@ -63,16 +63,16 @@ export class RamChart extends Container {
     this.dataPoints.push(BASE_PRICE);
   }
 
-  /** Call every frame. slopCount drives the price. */
-  public update(deltaMS: number, slopCount: number): void {
+  /** Call every frame. */
+  public update(deltaMS: number, sps: number): void {
     this.elapsedMs += deltaMS;
     this.timeSinceLastSample += deltaMS;
 
-    // Update price based on slop count
-    // Price = base + log2(1 + slops)^2 * scaling + noise
+    // Update price based on slops per second
+    // Price = base + log2(1 + sps)^2 * scaling + noise
     const noise = (Math.random() - 0.4) * 0.5;
-    const logSlops = Math.log2(1 + slopCount);
-    this.currentPrice = BASE_PRICE + logSlops * logSlops * 1.2 + noise;
+    const logSps = Math.log2(1 + sps);
+    this.currentPrice = BASE_PRICE + logSps * logSps * 1.2 + noise;
     this.currentPrice = Math.max(BASE_PRICE, this.currentPrice);
 
     // Sample at intervals
@@ -83,9 +83,9 @@ export class RamChart extends Container {
 
     // Update price display in title
     const priceColor =
-      this.currentPrice > BASE_PRICE + 10 ? 0xff4444 : 0x00ff88;
+      this.currentPrice > BASE_PRICE + 50 ? 0xff4444 : 0x00ff88;
     this.titleText.style.fill = priceColor;
-    this.titleText.text = `📈 RAM Price ($${this.currentPrice.toFixed(2)}/GB)`;
+    this.titleText.text = `Prix de la RAM ($${this.currentPrice.toFixed(2)}/GB)`;
 
     this.drawChart();
   }

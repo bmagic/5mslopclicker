@@ -80,7 +80,7 @@ export class ResultPanel extends Container {
     this.panel.addChild(this.highscoreLabel);
 
     this.restartButton = new Button({
-      text: "Accueil",
+      text: "Recommencer",
       width: 300,
       height: 110,
     });
