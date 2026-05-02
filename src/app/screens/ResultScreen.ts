@@ -30,6 +30,7 @@ export class ResultScreen extends Container {
 
   public async show(): Promise<void> {
     engine().audio.bgm.stop();
+    engine().audio.sfx.play("main/sounds/sfx-bravo.wav");
   }
 
   private onRestartPressed(): void {

@@ -4,6 +4,7 @@ import { assetpackPlugin } from "./scripts/assetpack-vite-plugin";
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: "./",
   plugins: [assetpackPlugin()],
   server: {
     host: "0.0.0.0",

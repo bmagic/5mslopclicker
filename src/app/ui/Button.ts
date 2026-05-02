@@ -9,6 +9,7 @@ const defaultButtonOptions = {
   width: 301,
   height: 112,
   fontSize: 28,
+  textOffset: { x: 0, y: -13 },
 };
 
 type ButtonOptions = typeof defaultButtonOptions;
@@ -35,7 +36,7 @@ export class Button extends FancyButton {
           wordWrapWidth: opts.width * 0.85,
         },
       }),
-      textOffset: { x: 0, y: -13 },
+      textOffset: opts.textOffset,
       defaultTextAnchor: 0.5,
       scale: 0.9,
       animations: {

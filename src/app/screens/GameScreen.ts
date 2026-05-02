@@ -33,24 +33,24 @@ const COST_GROWTH = 1.15;
 
 /** All available buildings, ordered by tier */
 const BUILDING_DEFS: BuildingDef[] = [
-  { name: "Cheap GPU", baseCost: 15, baseSps: 0.5 },
-  { name: "Prompt Bot", baseCost: 100, baseSps: 2 },
-  { name: "Content Farm", baseCost: 500, baseSps: 8 },
-  { name: "SEO Parasite", baseCost: 3_000, baseSps: 30 },
-  { name: "AI Influencer", baseCost: 15_000, baseSps: 100 },
+  { name: "Arduino", baseCost: 15, baseSps: 0.5 },
+  { name: "Raspberry Pi", baseCost: 100, baseSps: 2 },
+  { name: "PC portable", baseCost: 500, baseSps: 8 },
+  { name: "PC gamer", baseCost: 3_000, baseSps: 30 },
+  { name: "Serveur", baseCost: 15_000, baseSps: 100 },
   { name: "Datacenter", baseCost: 75_000, baseSps: 400 },
 ];
 
 /** AI model names */
 const MODEL_NAMES: string[] = [
   "Bard 0.1",
-  "ChatGPT 3.5-Turbo-Slop",
+  "ChatGPT 3.5-Turbo",
   "LLaMA 7B-Leaks",
   "Copilot Wish.com",
   "Mistral Small-ish",
-  "Claude Instant Noodles",
+  "Claude Super Instant",
   "Gemini Nano-Micro",
-  "GPT-4o-Slop",
+  "GPT-4o-Grok",
   "DeepSeek R2-D2",
   "Grok LOL Edition",
   "LLaMA 405B-Overfit",
@@ -59,7 +59,6 @@ const MODEL_NAMES: string[] = [
   "GPT-6-Hallucinator",
   "Mistral Le Grand",
   "SkyNet Alpha 0.1",
-  "Canard PC Slop 9000",
   "Singularity.exe",
 ];
 
@@ -224,6 +223,7 @@ export class GameScreen extends Container {
         width: 240,
         height: 60,
         fontSize: 14,
+        textOffset: { x: 0, y: -9 },
       });
       const label = new Text({
         text: "",
@@ -285,7 +285,7 @@ export class GameScreen extends Container {
     this.spsText.y = height * 0.12 + 50;
 
     this.addButton.x = width * 0.4;
-    this.addButton.y = height * 0.75;
+    this.addButton.y = height * 0.8;
 
     // --- Right panel ---
     const panelX = width * 0.9;
@@ -316,7 +316,7 @@ export class GameScreen extends Container {
   }
 
   public async show(): Promise<void> {
-    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
+    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.4 });
     this.timer.start();
   }
 
