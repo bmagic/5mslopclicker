@@ -104,6 +104,16 @@ export class GameScreen extends Container {
   private cardsContainer: Container;
   private milestoneCards: MilestoneCard[] = [];
 
+  // Minute-warning sound thresholds (in ms) → sound alias
+  private minuteWarningSounds = new Map<number, string>([
+    [4 * 60_000, "main/sounds/sfx-warning-4min.wav"],
+    [3 * 60_000, "main/sounds/sfx-warning-3min.wav"],
+    [2 * 60_000, "main/sounds/sfx-warning-2min.wav"],
+    [1 * 60_000, "main/sounds/sfx-warning-1min.wav"],
+    [0, "main/sounds/sfx-warning-0min.wav"],
+  ]);
+  private triggeredWarnings = new Set<number>();
+
   constructor() {
     super();
 
@@ -256,6 +266,7 @@ export class GameScreen extends Container {
     this.updatePassiveIncome(time.deltaMS);
     this.updateIcons(time.deltaMS);
     this.checkMilestones();
+    this.checkMinuteWarnings();
     this.ramChart.update(time.deltaMS, this.counter.getValue());
 
     if (this.timer.isFinished()) {
@@ -323,6 +334,18 @@ export class GameScreen extends Container {
 
   public blur() {
     // No auto-pause popup during game, optional optimization
+  }
+
+  // ---------- Minute Warnings ----------
+
+  private checkMinuteWarnings(): void {
+    const remaining = this.timer.getRemainingMs();
+    for (const [threshold, alias] of this.minuteWarningSounds) {
+      if (!this.triggeredWarnings.has(threshold) && remaining <= threshold) {
+        this.triggeredWarnings.add(threshold);
+        engine().audio.sfx.play(alias, { volume: 0.7 });
+      }
+    }
   }
 
   // ---------- Finish ----------
