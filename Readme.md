@@ -1,3 +1,10 @@
+# 5min slop clicker
+
+Ce jeu a été fait dans le cadre de la GameJam organisé par CanardPC.
+https://www.canardpc.com/annonce/annonces-jeu-video/make-something-horrible-2026-to-slop-or-not-to-slop/
+
+# Crédits
+
 ## Ackboo en vacances
 
 Bodybuilder: Josiah Matthew

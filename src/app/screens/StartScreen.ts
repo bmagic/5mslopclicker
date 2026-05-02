@@ -29,7 +29,7 @@ export class StartScreen extends Container {
   }
 
   public async show(): Promise<void> {
-    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
+    engine().audio.bgm.stop();
   }
 
   private onStartPressed(): void {

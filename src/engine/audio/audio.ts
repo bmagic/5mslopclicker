@@ -49,6 +49,20 @@ export class BGM {
     return this.volume;
   }
 
+  /** Stop the current background music with a fade out */
+  public stop() {
+    if (this.current) {
+      const current = this.current;
+      animate(current, { volume: 0 }, { duration: 1, ease: "linear" }).then(
+        () => {
+          current.stop();
+        },
+      );
+      this.current = undefined;
+      this.currentAlias = undefined;
+    }
+  }
+
   /** Set background music volume */
   public setVolume(v: number) {
     this.volume = v;

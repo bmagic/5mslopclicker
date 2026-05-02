@@ -327,10 +327,13 @@ export class GameScreen extends Container {
   }
 
   public async show(): Promise<void> {
+    engine().audio.bgm.play("main/sounds/bgm-main.mp3", { volume: 0.5 });
     this.timer.start();
   }
 
-  public async hide() {}
+  public async hide() {
+    engine().audio.bgm.stop();
+  }
 
   public blur() {
     // No auto-pause popup during game, optional optimization
