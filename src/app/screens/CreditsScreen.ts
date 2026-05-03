@@ -6,6 +6,10 @@ import { StartScreen } from "./StartScreen";
 
 const CREDITS_DATA: { section: string; lines: string[] }[] = [
   {
+    section: "Remerciements",
+    lines: ["Alice", "Louison", "Morgane", "Sandra", "Seb", "Spock"],
+  },
+  {
     section: "Milestone 1",
     lines: [
       "Bodybuilder: Josiah Matthew",

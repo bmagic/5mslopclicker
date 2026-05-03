@@ -1,4 +1,31 @@
-import { Container, Text } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
+
+/**
+ * Cache of pre-rendered emoji textures so we don't create a new canvas/Text per icon.
+ * This avoids exhausting browser canvas context limits (~100 in Chrome).
+ */
+const emojiTextureCache = new Map<string, Texture>();
+
+function getEmojiTexture(label: string, size: number): Texture {
+  const key = `${label}_${size}`;
+  if (emojiTextureCache.has(key)) {
+    return emojiTextureCache.get(key)!;
+  }
+  // Draw emoji to a canvas and create a reusable texture from it
+  const fontSize = size * 0.7;
+  const canvas = document.createElement("canvas");
+  const res = Math.min(window.devicePixelRatio, 2);
+  canvas.width = Math.ceil(fontSize * 1.4 * res);
+  canvas.height = Math.ceil(fontSize * 1.4 * res);
+  const ctx = canvas.getContext("2d")!;
+  ctx.font = `${fontSize * res}px Arial`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(label, canvas.width / 2, canvas.height / 2);
+  const texture = Texture.from({ resource: canvas, label: key });
+  emojiTextureCache.set(key, texture);
+  return texture;
+}
 
 /** Options for spawning a floating icon */
 export interface FloatingIconOptions {
@@ -55,17 +82,11 @@ export class FloatingIcon extends Container {
     this.startScale = startScale;
     this.offsetX = (Math.random() - 0.5) * spreadX * 2;
 
-    // Emoji / text label on top
-    const txt = new Text({
-      text: label,
-      style: {
-        fontSize: size * 0.7,
-        fill: 0xffffff,
-        fontFamily: "Arial",
-      },
-      anchor: 0.5,
-    });
-    this.addChild(txt);
+    // Use cached texture instead of creating a new Text per icon
+    const texture = getEmojiTexture(label, size);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0.5);
+    this.addChild(sprite);
 
     this.scale.set(startScale);
     this.alpha = 0;
@@ -177,6 +198,7 @@ export const ICON_PRESETS = {
 
 /**
  * A poop icon that pops in, bounces, and flies off screen.
+ * Uses a shared pre-rendered texture to avoid creating new Text/canvas per icon.
  * Auto-removes itself once off-screen.
  */
 export class BouncingIcon extends Container {
@@ -213,12 +235,11 @@ export class BouncingIcon extends Container {
     this.maxBounces = 2 + Math.floor(Math.random() * 6);
     this.bounciness = 0.4 + Math.random() * 0.5;
 
-    const txt = new Text({
-      text: label,
-      style: { fontSize: size * 0.7, fill: 0xffffff, fontFamily: "Arial" },
-      anchor: 0.5,
-    });
-    this.addChild(txt);
+    // Use cached texture instead of creating a new Text per icon
+    const texture = getEmojiTexture(label, size);
+    const sprite = new Sprite(texture);
+    sprite.anchor.set(0.5);
+    this.addChild(sprite);
 
     // Random starting scale
     this.scale.set(0.3 + Math.random() * 0.4);
@@ -268,7 +289,8 @@ export class BouncingIcon extends Container {
     ) {
       this.finished = true;
       this.parent?.removeChild(this);
-      this.destroy();
+      // Destroy container but preserve shared textures
+      this.destroy({ children: true, texture: false, textureSource: false });
       return true;
     }
 

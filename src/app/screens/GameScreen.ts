@@ -414,7 +414,7 @@ export class GameScreen extends Container {
   private updateModelButtonState(): void {
     const canBuy = this.counter.getValue() >= this.getModelCost();
     this.buyModelButton.alpha = canBuy ? 1 : 0.5;
-    this.buyModelButton.interactive = canBuy;
+    this.buyModelButton.enabled = canBuy;
   }
 
   // ---------- Buildings ----------
@@ -451,7 +451,7 @@ export class GameScreen extends Container {
     for (const b of this.buildings) {
       const canBuy = this.counter.getValue() >= this.getBuildingCost(b);
       b.button.alpha = canBuy ? 1 : 0.5;
-      b.button.interactive = canBuy;
+      b.button.enabled = canBuy;
     }
   }
 
@@ -479,8 +479,9 @@ export class GameScreen extends Container {
     if (whole > 0) {
       this.counter.increment(whole);
       this.slopAccumulator -= whole;
-      // Spawn 1 bouncing poop per slop gained — fountain effect at high SPS
-      for (let i = 0; i < whole; i++) {
+      // Cap icons spawned per frame to avoid overwhelming the renderer
+      const iconsToSpawn = Math.min(whole, 5);
+      for (let i = 0; i < iconsToSpawn; i++) {
         this.spawnBouncingIcon("click");
       }
     }
@@ -500,7 +501,7 @@ export class GameScreen extends Container {
     preset: keyof typeof ICON_PRESETS,
     force = false,
   ): void {
-    if (!force && this.bouncingIcons.length >= 1000) return;
+    if (!force && this.bouncingIcons.length >= 300) return;
     const cfg = ICON_PRESETS[preset];
     // Spawn from the counter position with small random spread
     const x = this.counter.x + (Math.random() - 0.5) * 60;
@@ -542,8 +543,8 @@ export class GameScreen extends Container {
       engine().audio.sfx.play("main/sounds/sfx-jackpot.wav", { volume: 1.4 });
       // Spawn milestone background card
       this.spawnMilestoneCard(this.nextMilestone - 1);
-      // Star explosion
-      for (let i = 0; i < 500; i++) {
+      // Star explosion (capped to avoid texture exhaustion)
+      for (let i = 0; i < 50; i++) {
         this.spawnBouncingIcon("milestone", true);
       }
     }
